@@ -3,6 +3,7 @@ const express = require('express');
 const bcrypt = require('bcryptjs'); // For password comparison
 const jwt = require('jsonwebtoken'); // For creating JSON Web Tokens
 const User = require('../models/User'); // Import User model
+const authenticateToken = require('../middleware/authMiddleware');
 
 const router = express.Router(); // Create router object to def and manage routes
 
@@ -66,5 +67,32 @@ router.post('/login', async (req, res) => {
     }  
 });
 
+// Returns the profile of user and authToken ensures the user logged in before accessing the route
+
+router.get('/profile', authenticateToken, async(req, res) => {
+    try{
+        //Authenticated by user's ID but excludes password from response
+        const user = await User.findById(req.user.id).select('-password');
+        if(!user) return res.status(404).json({message: 'User not found.'});
+
+        res.json(user) //Return user info
+
+    } catch(err){
+        res.status(500).json({message: 'Error fetching profile.', error: err.message});
+    }
+});
+
+//Allows user to delete their account and ensures only logged-in users can delete account
+router.delete('/profile', authenticateToken, async (req, res) => {
+    try {
+        const user = await User.findByIdAndDelete(req.user.id);
+        if(!user) return res.status(404).json({message: 'User not found'});
+
+        res.json({message: 'User account deleted successfully'});
+    
+    } catch(err){
+        res.status(500).json({message: 'Error deleting account', error: err.message});
+        }
+});
 //Export the router so it can be with app.js
 module.exports = router;
