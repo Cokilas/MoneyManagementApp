@@ -1,4 +1,4 @@
-const mongoose = required('mongoose');
+const mongoose = require('mongoose');
 
 // Defining the schema for Budget
 const BudgetSchema = new mongoose.Schema({

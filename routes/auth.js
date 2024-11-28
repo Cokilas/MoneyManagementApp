@@ -7,6 +7,8 @@ const authenticateToken = require('../middleware/authMiddleware');
 
 const router = express.Router(); // Create router object to def and manage routes
 
+// POST /api/auth/register
+
 router.post('/register', async (req, res) => {
     const {firstName, lastName, email, password} = req.body; // Extracts user input
 
