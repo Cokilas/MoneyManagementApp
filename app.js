@@ -4,6 +4,9 @@ const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const cors = require('cors');
 
+const budgetRoutes = require('./routes/budget')
+app.use('/api/budget', budgetRoutes)
+
 // Loads environment variables from the .env file
 dotenv.config();
 
@@ -21,11 +24,15 @@ app.use('/api/auth', (req, res) => res.send('Route is working.'));
 
 // MDB Connectiojn setup using Mongoose
 mongoose
-    .connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true }) //Connects to MDB database using the URL from .env
+    .connect(process.env.MONGO_URI) //Connects to MDB database using the URL from .env
     .then(() => console.log('Mongo connected')) // Success message if connection works
     .catch((err) => console.error('Database connection error:', err)); //Logs any errors during the connection process
 
 
 //Start server and listens for requests & Server listens on a port
 const PORT = process.env.PORT || 5000; //Use PORT environment variable or default to 5000
-app.listen(PORT, () => console.log('Server running on port ${PORT}'));
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
+console.log('PORT:', process.env.PORT);
+console.log('MONGO_URI:', process.env.MONGO_URI);
+console.log('JWT_SECRET:', process.env.JWT_SECRET);
