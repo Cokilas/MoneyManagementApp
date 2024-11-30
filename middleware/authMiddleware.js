@@ -3,7 +3,8 @@ const jwt = require('jsonwebtoken');
 // Middleware to verify JWT token
 const authenticateToken = (req, res, next) => {
     // Get token from header
-    const token = req.header('Authorization');
+    const authHeader = req.header('Authorization');
+    const token = authHeader && authHeader.split(' ')[1];
 
     // If no token is provided access is denied
     if (!token){
@@ -16,7 +17,7 @@ const authenticateToken = (req, res, next) => {
         req.user = verified;
         next();
     } catch (err) {
-        res.status(400).json({message: 'Invalid token.'});
+        res.status(401).json({message: 'Invalid token.'});
     }
 };
 

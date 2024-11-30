@@ -4,8 +4,9 @@ const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const cors = require('cors');
 
-const budgetRoutes = require('./routes/budget')
-const authRoutes = require('./routes/auth')
+const budgetRoutes = require('./routes/budget');
+const authRoutes = require('./routes/auth');
+const expenseRoutes = require('./routes/expense');
 
 // Loads environment variables from the .env file
 dotenv.config();
@@ -22,6 +23,7 @@ app.use(express.json());
 // will return a simple response to test if server is working
 app.use('/api/budget', budgetRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/expenses', expenseRoutes);
 
 // MDB Connectiojn setup using Mongoose
 mongoose

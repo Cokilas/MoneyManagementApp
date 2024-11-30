@@ -6,6 +6,8 @@ const router = express.Router();
 //Desc: Creates a new budget
 
 router.post('/', authenticateToken, async(req, res) => {
+    console.log('Request Body:', req.body);
+
     // Extract budget details from the req body
     const{name, amount, startDate, endDate} = req.body;
 
