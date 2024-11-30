@@ -46,6 +46,76 @@ router.get('/', authenticateToken, async (req, res) => {
     }
 });
 
+// Calculates the total expenses for a given budget
+// GET /api/budget/:id/total-expenses
+router.get('/:id/total-expenses', authenticateToken, async (req, res) => {
+    try{
+        const budgetId = req.params.id;
+
+        // Aggregate total expenses for the ID given
+        const totalExpenses = await Expense.aggregate([
+            { $match: { budgetId: mongoose.Types.ObjectId(budgetId), userId: req.user.id } }, // Filter by budgetId and userId
+            { $group: { _id: null, total: { $sum: '$amount' } } }, //Calculate total
+        ]);
+
+        res.json({totalExpenses: totalExpenses[0]?.total || 0});
+    } catch (err){
+        res.status(500).json({message: 'Error calculating total expenses', error: err.message});
+    }
+});
+
+// Calculates the remaining balance for a budget by (-) total expenses from budget amount
+// GET /api/budget/:id/balance
+router.get('/:id/balance', authenticateToken, async (req, res) => {
+    try{
+        const budgetId = req.params.id;
+
+        //Find the budget
+        const budget = await Budget.findById(budgetId);
+        if (!budget || budget.userId.toString() !== req.user.id){
+            return res.status(404).json({message: 'Budget not found.'});
+        }
+
+        // Calculate total expenses
+        const totalExpenses = await Expense.aggregate([
+            { $match: { budgetId: mongoose.Types.ObjectId(budgetId), userId: req.user.id } }, // Filter by budgetId and userId
+            { $group: { _id: null, total: { $sum: '$amount' } } }, //Calculate total
+        ]);
+
+        // Calculate balance
+        const totalSpent = totalExpenses[0]?.total || 0;
+        const remainingBalance = budget.amount - totalSpent;
+
+        res.json({ remainingBalance, totalSpent });
+    
+    }catch (err){
+        res.status(500).json({message: 'Error calculating balance', error: err.message});
+    }
+});
+
+// Provides a summary of expenses grouped by month for user
+// GET /api/expenses/summary/monthly
+router.get('/summary/monthly', authenticateToken, async (req, res) =>{
+    try{
+        const monthlySummary = await Expense.aggregate([
+            { $match: { userId: mongoose.Types.ObjectId(req.user.id) } },
+            { $group: {
+                _id: {
+                    year: { $year: '$date'},
+                    month: { $month: '$date'},
+                },
+                total : { $sum: '$amount'}, // Total amount for month
+            },
+        },
+        {$sort: { '_id.year': 1, '_id.month': 1} }, // Sort by year and month
+        ]);
+
+        res.json(monthlySummary);
+    } catch (err){
+        res.status(500).json({message: 'Error generating monthly summary', error: err.message});
+    }
+});
+
 // Desc: Update any existing budget by using ID
 
 router.put('/:id', authenticateToken, async (req, res) => {
