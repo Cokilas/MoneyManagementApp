@@ -35,7 +35,3 @@ mongoose
 //Start server and listens for requests & Server listens on a port
 const PORT = process.env.PORT || 5000; //Use PORT environment variable or default to 5000
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-
-console.log('PORT:', process.env.PORT);
-console.log('MONGO_URI:', process.env.MONGO_URI);
-console.log('JWT_SECRET:', process.env.JWT_SECRET);
